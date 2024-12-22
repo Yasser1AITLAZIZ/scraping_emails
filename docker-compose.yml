@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app_service:
+    image: yasser1aitlaziz/scraping_emails
+    container_name: scrapmail_app_container
+    build:
+      context: .
+    volumes:
+      - ./data_brute:/app/data_brute/
