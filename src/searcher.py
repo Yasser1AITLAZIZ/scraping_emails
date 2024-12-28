@@ -1,6 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
 import undetected_chromedriver as uc
@@ -13,8 +10,7 @@ class Searcher:
     A class to handle the search process using Selenium.
     """
 
-    def __init__(self, query: str, logger: logging.Logger):
-        self.query = query
+    def __init__(self, logger: logging.Logger):
         self.logger = logger
         self.driver = None
         self.setup_driver()
@@ -39,8 +35,6 @@ class Searcher:
         options.add_argument("--lang=fr-FR")
         options.add_argument('--incognito')
         options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')
 
         try:
             # Use webdriver_manager to automatically install the correct driver
@@ -51,29 +45,15 @@ class Searcher:
             self.logger.error(f"Error initializing Chrome driver: {e}")
             raise
 
-    def perform_search(self, site: str) -> list:
+    def perform_search(self, search_url: str) -> list:
         """
         Perform a search on the specified site and return a list of page HTMLs.
         """
         try:
-            search_url = f"https://www.google.com/search?q={self.query}+site:{site}"
             self.logger.info("Performing search for: %s", search_url)
             self.driver.get(search_url)
             time.sleep(5)
-            self.save_page_source(f"page_content_{site}.html")
-
-            pages = []
-            while True:
-                pages.append(self.driver.page_source)
-                try:
-                    next_button = self.driver.find_element(By.LINK_TEXT, "Next")
-                    next_button.click()
-                    self.logger.info("Navigating to the next page.")
-                except Exception as e:
-                    self.logger.info("No more pages to navigate.")
-                    break
-
-            return pages
+            # self.save_page_source(f"page_content.html")
         except Exception as e:
             self.logger.exception("Error occurred during search.")
             raise
